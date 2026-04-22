@@ -33,6 +33,11 @@ public class Agent : MonoBehaviour
     [SerializeField]
     private Agent targetAgent;
 
+    [Header("Interactions")]
+    [SerializeField] private string _targetTag = "InterestObject";
+    [SerializeField] private float _damagePerSecond = 20f;
+    [SerializeField] private float _eatDistance = 1.5f;
+
     private static readonly List<Agent> _allAgents = new();
 
     private Vector3 _velocity;
@@ -51,15 +56,54 @@ public class Agent : MonoBehaviour
 
     private void Update()
     {
-        if (_currentMode == SteeringModes.Flocking) CalculateFlocking();
-        else if (_currentMode == SteeringModes.Pursuit) _velocity += CalculatePursuit(targetAgent);
-        else if (_currentMode == SteeringModes.Evade) _velocity += CalculateEvade(targetAgent);
-        else _velocity += GetCurrentSteeringMode();
+        Vector3 steeringForce = Vector3.zero;
 
+        Collider[] targetsInRange = Physics.OverlapSphere(transform.position, _viewRadius);
+        Transform closestTarget = null;
+        float closestDist = float.MaxValue;
+
+        foreach (var col in targetsInRange)
+        {
+            if (col.CompareTag(_targetTag))
+            {
+                float d = Vector3.Distance(transform.position, col.transform.position);
+                if (d < closestDist)
+                {
+                    closestDist = d;
+                    closestTarget = col.transform;
+                }
+            }
+        }
+        if (closestTarget != null)
+        {
+            _currentMode = SteeringModes.Arrive;
+            steeringForce += CalculateArrive(closestTarget.position);
+
+            if (closestDist <= _eatDistance)
+            {
+                InterestObject targetScript = closestTarget.GetComponent<InterestObject>();
+                if (targetScript != null)
+                {
+                    targetScript.health -= _damagePerSecond * Time.deltaTime;
+                    if (targetScript.health <= 0) Destroy(closestTarget.gameObject);
+                }
+            }
+        }
+        else
+        {
+            _currentMode = SteeringModes.Flocking;
+            steeringForce += CalculateAlignment(_allAgents, _viewRadius) * _alignmentWeight;
+            steeringForce += CalculateCohesion(_allAgents, _viewRadius) * _cohesionWeight;
+        }
+
+        steeringForce += CalculateSeparation(_allAgents, _separationRadius) * _separationWeight;
+
+        _velocity += steeringForce;
         _velocity = Vector3.ClampMagnitude(_velocity, _maxSpeed);
 
         transform.position += _velocity * Time.deltaTime;
-        transform.forward = _velocity;
+        if (_velocity != Vector3.zero) transform.forward = _velocity;
+        
         transform.position = Bounds.Instance.CalculateBoundPosition(transform.position);
     }
 
