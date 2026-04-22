@@ -159,7 +159,8 @@ MonoBehaviour:
   _alignmentWeight: 1
   target: {fileID: 0}
   targetAgent: {fileID: 0}
-  _targetTag: InterestObject
+  _targetTagObject: InterestObject
+  _targetTagHunter: Hunter
   _damagePerSecond: 20
   _eatDistance: 1.5
 --- !u!4 &112503980
@@ -931,7 +932,8 @@ MonoBehaviour:
   _alignmentWeight: 1
   target: {fileID: 0}
   targetAgent: {fileID: 0}
-  _targetTag: InterestObject
+  _targetTagObject: InterestObject
+  _targetTagHunter: Hunter
   _damagePerSecond: 20
   _eatDistance: 1.5
 --- !u!4 &429994763
@@ -943,7 +945,7 @@ Transform:
   m_GameObject: {fileID: 429994761}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.76531, y: 0, z: 0.69281}
+  m_LocalPosition: {x: -22.34, y: 0, z: 0.31}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -990,7 +992,8 @@ MonoBehaviour:
   _alignmentWeight: 1
   target: {fileID: 0}
   targetAgent: {fileID: 0}
-  _targetTag: InterestObject
+  _targetTagObject: InterestObject
+  _targetTagHunter: Hunter
   _damagePerSecond: 20
   _eatDistance: 1.5
 --- !u!4 &443745539
@@ -1049,7 +1052,8 @@ MonoBehaviour:
   _alignmentWeight: 1
   target: {fileID: 0}
   targetAgent: {fileID: 0}
-  _targetTag: InterestObject
+  _targetTagObject: InterestObject
+  _targetTagHunter: Hunter
   _damagePerSecond: 20
   _eatDistance: 1.5
 --- !u!4 &487011048
@@ -1305,6 +1309,7 @@ GameObject:
   - component: {fileID: 800865507}
   - component: {fileID: 800865506}
   - component: {fileID: 800865505}
+  - component: {fileID: 800865509}
   m_Layer: 0
   m_Name: ObjectInterest
   m_TagString: InterestObject
@@ -1405,6 +1410,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &800865509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 800865504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f3a292e2c91fd048afa212359e9838a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InterestObject
+  health: 100
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1767,7 +1785,8 @@ MonoBehaviour:
   _alignmentWeight: 1
   target: {fileID: 0}
   targetAgent: {fileID: 0}
-  _targetTag: InterestObject
+  _targetTagObject: InterestObject
+  _targetTagHunter: Hunter
   _damagePerSecond: 20
   _eatDistance: 1.5
 --- !u!4 &1339632239
@@ -1938,7 +1957,8 @@ MonoBehaviour:
   _alignmentWeight: 1
   target: {fileID: 0}
   targetAgent: {fileID: 0}
-  _targetTag: InterestObject
+  _targetTagObject: InterestObject
+  _targetTagHunter: Hunter
   _damagePerSecond: 20
   _eatDistance: 1.5
 --- !u!4 &1412971900
@@ -2109,7 +2129,8 @@ MonoBehaviour:
   _alignmentWeight: 1
   target: {fileID: 0}
   targetAgent: {fileID: 0}
-  _targetTag: InterestObject
+  _targetTagObject: InterestObject
+  _targetTagHunter: Hunter
   _damagePerSecond: 20
   _eatDistance: 1.5
 --- !u!4 &1594246423
@@ -2121,7 +2142,7 @@ Transform:
   m_GameObject: {fileID: 1594246421}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.76531, y: 0, z: 0.69281}
+  m_LocalPosition: {x: -17.89, y: 0, z: 0.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
