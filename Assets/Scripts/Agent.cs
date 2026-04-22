@@ -34,7 +34,8 @@ public class Agent : MonoBehaviour
     private Agent targetAgent;
 
     [Header("Interactions")]
-    [SerializeField] private string _targetTag = "InterestObject";
+    [SerializeField] private string _targetTagObject = "InterestObject";
+    [SerializeField] private string _targetTagHunter = "Hunter";
     [SerializeField] private float _damagePerSecond = 20f;
     [SerializeField] private float _eatDistance = 1.5f;
 
@@ -57,36 +58,42 @@ public class Agent : MonoBehaviour
     private void Update()
     {
         Vector3 steeringForce = Vector3.zero;
+        Collider[] closeObjects = Physics.OverlapSphere(transform.position, _viewRadius);
+        
+        Transform hunterTransform = null;
+        Transform ObjectTransform = null;
 
-        Collider[] targetsInRange = Physics.OverlapSphere(transform.position, _viewRadius);
-        Transform closestTarget = null;
-        float closestDist = float.MaxValue;
-
-        foreach (var col in targetsInRange)
+        foreach (var col in closeObjects)
         {
-            if (col.CompareTag(_targetTag))
+            if (col.CompareTag(_targetTagHunter)) 
             {
-                float d = Vector3.Distance(transform.position, col.transform.position);
-                if (d < closestDist)
-                {
-                    closestDist = d;
-                    closestTarget = col.transform;
-                }
+                hunterTransform = col.transform;
+                break;
+            }
+            if (col.CompareTag(_targetTagObject))
+            {
+                ObjectTransform = col.transform;
             }
         }
-        if (closestTarget != null)
+        if (hunterTransform != null)
+        {
+            _currentMode = SteeringModes.Evade;
+            Agent hunterAgent = hunterTransform.GetComponent<Agent>();
+            
+            if (hunterAgent != null) 
+                steeringForce += CalculateEvade(hunterAgent);
+            else 
+                steeringForce += CalculateFlee(hunterTransform.position);
+        }
+        else if (ObjectTransform != null)
         {
             _currentMode = SteeringModes.Arrive;
-            steeringForce += CalculateArrive(closestTarget.position);
-
-            if (closestDist <= _eatDistance)
+            steeringForce += CalculateArrive(ObjectTransform.position);
+            float dist = Vector3.Distance(transform.position, ObjectTransform.position);
+            if (dist <= _eatDistance)
             {
-                InterestObject targetScript = closestTarget.GetComponent<InterestObject>();
-                if (targetScript != null)
-                {
-                    targetScript.health -= _damagePerSecond * Time.deltaTime;
-                    if (targetScript.health <= 0) Destroy(closestTarget.gameObject);
-                }
+                InterestObject targetScript = ObjectTransform.GetComponent<InterestObject>();
+                if (targetScript != null) targetScript.RecieveDamage(_damagePerSecond * Time.deltaTime);
             }
         }
         else
@@ -95,15 +102,12 @@ public class Agent : MonoBehaviour
             steeringForce += CalculateAlignment(_allAgents, _viewRadius) * _alignmentWeight;
             steeringForce += CalculateCohesion(_allAgents, _viewRadius) * _cohesionWeight;
         }
-
         steeringForce += CalculateSeparation(_allAgents, _separationRadius) * _separationWeight;
-
         _velocity += steeringForce;
         _velocity = Vector3.ClampMagnitude(_velocity, _maxSpeed);
 
         transform.position += _velocity * Time.deltaTime;
-        if (_velocity != Vector3.zero) transform.forward = _velocity;
-        
+        if (_velocity.sqrMagnitude > 0.01f) transform.forward = _velocity;
         transform.position = Bounds.Instance.CalculateBoundPosition(transform.position);
     }
 
@@ -115,10 +119,6 @@ public class Agent : MonoBehaviour
         _velocity += CalculateSeparation(_allAgents, _separationRadius) * _separationWeight
                     + CalculateAlignment(_allAgents, _viewRadius) * _alignmentWeight
                     + CalculateCohesion(_allAgents, _viewRadius) * _cohesionWeight;
-        //ApplyForce(CalculateAlignment(_allAgents, _viewRadius));
-
-        //Leader Following
-        //Arrive(Lider) + Separation()
     }
 
     private void ApplyForce(Vector3 force) => _velocity = Vector3.ClampMagnitude(_velocity + force, _maxSpeed);
@@ -198,8 +198,6 @@ public class Agent : MonoBehaviour
 
     private Vector3 CalculatePursuit(Agent target) => CalculateSeek(GetFuturePosition(target));
     private Vector3 CalculateEvade(Agent target) => CalculateFlee(GetFuturePosition(target));
-
-    //FuturePosition = Position + Velocity * Time;
     private Vector3 GetFuturePosition(Agent target)
     {
         float distanceToTarget = (target.transform.position - transform.position).magnitude;
@@ -275,7 +273,6 @@ public class Agent : MonoBehaviour
             Agent target = targetAgent;
             float distanceToTarget = (target.transform.position - transform.position).magnitude;
             float predictedTime = distanceToTarget / (_maxSpeed + target.Velocity.magnitude);
-            //FuturePosition = Position + Velocity * Time;
             Vector3 futurePos = target.transform.position + target.Velocity * predictedTime;
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(futurePos, 0.25f);
