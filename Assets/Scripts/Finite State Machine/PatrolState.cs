@@ -7,7 +7,8 @@ public class PatrolState : State
     private FSMAgent _agent;
     private PatrolData _data;
     private int _currentIndex = 0;
-    public PatrolState(PatrolData data, FSMAgent agent) //
+    
+    public PatrolState(PatrolData data, FSMAgent agent) : base(agent.FSM) 
     {
         _data = data;
         _agent = agent;

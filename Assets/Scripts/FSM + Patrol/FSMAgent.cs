@@ -14,13 +14,22 @@ public class FSMAgent : MonoBehaviour
 
     private readonly FiniteStateMachine _fsm = new();
 
+    public FiniteStateMachine FSM => _fsm;
+
+    public IdleState Idle { get; private set; }
+
+    public PatrolState Patrol { get; private set; }
+
     private void Start() 
     {
-        IdleState idle = new();
-        PatrolState patrol = new(_patrolData, this);
-        _fsm.ChangeState(patrol);
+        Idle = new(this);
+        Patrol = new(_patrolData, this);
+        _fsm.AddState(Idle);
+        _fsm.AddState(Patrol);
+        _fsm.ChangeState(Idle);
     }
 
+    
     private void Update()
     {
         _fsm.Update();
